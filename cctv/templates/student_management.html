@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Management - Faculty Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .management-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+    }
+  </style>
+</head>
+<body>
+  <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-primary back-btn">
+    ← Back to Dashboard
+  </a>
+
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="text-success">Student Management</h2>
+      <p class="text-muted">Manage student data and view system information</p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="management-card p-4">
+          <h5 class="text-primary mb-3">📊 System Overview</h5>
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="border rounded p-3">
+                <h4 class="text-success">{{ total_students or 0 }}</h4>
+                <small class="text-muted">Total Students</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border rounded p-3">
+                <h4 class="text-info">{{ students_with_photos or 0 }}</h4>
+                <small class="text-muted">With Photos</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="management-card p-4">
+          <h5 class="text-primary mb-3">🔧 Quick Actions</h5>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('view_students') }}" class="btn btn-outline-primary">View All Students</a>
+            <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-success">Upload Videos</a>
+            <a href="{{ url_for('build_gallery') }}" class="btn btn-outline-info">Build Gait Gallery</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="management-card p-4">
+          <h5 class="text-primary mb-3">ℹ️ Important Notes</h5>
+          <div class="alert alert-info">
+            <h6>Student Photo Management</h6>
+            <ul class="mb-0">
+              <li><strong>Students upload their own photos</strong> through their dashboard</li>
+              <li>Photos are automatically organized by registration number</li>
+              <li>Front photo is required, left and right side photos are optional</li>
+              <li>Faculty can view all student photos and profiles</li>
+            </ul>
+          </div>
+          
+          <div class="alert alert-warning">
+            <h6>Video Analysis</h6>
+            <ul class="mb-0">
+              <li>Upload CCTV videos for face recognition analysis</li>
+              <li>System will automatically detect faces and match with student photos</li>
+              <li>Green boxes appear around detected faces with student information</li>
+              <li>Click on faces to view detailed student profiles</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

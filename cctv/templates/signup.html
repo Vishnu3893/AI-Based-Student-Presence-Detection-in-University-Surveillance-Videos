@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UVPAS - Sign Up</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .signup-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+    .signup-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .signup-logo {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #28a745;
+      margin-bottom: 10px;
+    }
+    .signup-subtitle {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+    .form-control {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    .form-select {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    .form-select:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    .btn-signup {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      border: none;
+      color: white;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    .btn-signup:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+      color: white;
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .login-link a {
+      color: #28a745;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+    .role-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .role-btn {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .role-btn:hover {
+      border-color: #28a745;
+    }
+    .role-btn.active {
+      border-color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+    }
+    .role-btn input {
+      display: none;
+    }
+    .role-icon {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+    .faculty-fields {
+      display: none;
+    }
+    .student-fields {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-card">
+    <div class="signup-header">
+      <div class="signup-logo">UVPAS</div>
+      <div class="signup-subtitle">Create Your Account</div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" id="signupForm">
+      <div class="role-selector">
+        <label class="role-btn active" id="studentRoleBtn">
+          <input type="radio" name="role" value="student" checked>
+          <div class="role-icon">🎓</div>
+          <div>Student</div>
+        </label>
+        <label class="role-btn" id="facultyRoleBtn">
+          <input type="radio" name="role" value="faculty">
+          <div class="role-icon">👨‍🏫</div>
+          <div>Faculty</div>
+        </label>
+      </div>
+
+      <div class="mb-3 student-fields" id="regNoField">
+        <label class="form-label">Registration Number</label>
+        <input type="text" name="reg_no" class="form-control" placeholder="e.g., 99220041142" pattern="99[0-9]{9}" title="11 digits starting with 99">
+        <small class="text-muted">11 digits starting with 99 (e.g., 99220041142)</small>
+      </div>
+
+      <div class="mb-3 faculty-fields" id="usernameField">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Enter username">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="form-control" placeholder="Enter your full name" required>
+      </div>
+
+      <div class="mb-3 student-fields" id="deptField">
+        <label class="form-label">Department</label>
+        <select name="dept" class="form-select">
+          <option value="">Select Department</option>
+          <option value="CSE">Computer Science & Engineering</option>
+          <option value="ECE">Electronics & Communication</option>
+          <option value="EEE">Electrical & Electronics</option>
+          <option value="MECH">Mechanical Engineering</option>
+          <option value="CIVIL">Civil Engineering</option>
+          <option value="IT">Information Technology</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Enter password (min 8 characters)" required minlength="8">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm your password" required>
+      </div>
+
+      <button type="submit" class="btn btn-signup">Sign Up</button>
+    </form>
+
+    <div class="login-link">
+      Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const studentRoleBtn = document.getElementById('studentRoleBtn');
+    const facultyRoleBtn = document.getElementById('facultyRoleBtn');
+    const studentFields = document.querySelectorAll('.student-fields');
+    const facultyFields = document.querySelectorAll('.faculty-fields');
+    const regNoInput = document.querySelector('input[name="reg_no"]');
+    const usernameInput = document.querySelector('input[name="username"]');
+
+    function updateFields() {
+      const isStudent = document.querySelector('input[name="role"]:checked').value === 'student';
+      
+      studentFields.forEach(el => {
+        el.style.display = isStudent ? 'block' : 'none';
+        el.querySelectorAll('input, select').forEach(input => {
+          input.required = isStudent;
+        });
+      });
+      
+      facultyFields.forEach(el => {
+        el.style.display = isStudent ? 'none' : 'block';
+        el.querySelectorAll('input').forEach(input => {
+          input.required = !isStudent;
+        });
+      });
+
+      studentRoleBtn.classList.toggle('active', isStudent);
+      facultyRoleBtn.classList.toggle('active', !isStudent);
+    }
+
+    studentRoleBtn.addEventListener('click', updateFields);
+    facultyRoleBtn.addEventListener('click', updateFields);
+
+    // Form validation
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      const password = document.querySelector('input[name="password"]').value;
+      const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+      
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return false;
+      }
+    });
+  </script>
+</body>
+</html>

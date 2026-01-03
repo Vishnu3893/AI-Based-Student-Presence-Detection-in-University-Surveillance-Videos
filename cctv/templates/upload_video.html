@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Video - Faculty Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .upload-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+    }
+  </style>
+</head>
+<body>
+  <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-primary back-btn">
+    ← Back to Dashboard
+  </a>
+
+  <div class="container">
+    <div class="upload-card p-4">
+      <div class="text-center mb-4">
+        <h3 class="text-primary">Upload CCTV Video</h3>
+        <p class="text-muted">Upload video footage for face recognition analysis</p>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">Select Video File</label>
+          <input class="form-control" type="file" name="video" accept="video/*" required>
+          <small class="text-muted">Supported formats: MP4, AVI, MOV, MKV</small>
+        </div>
+        
+        <div class="mb-3">
+          <div class="alert alert-info">
+            <h6>📹 Video Requirements:</h6>
+            <ul class="mb-0">
+              <li>Clear video quality for better face detection</li>
+              <li>Good lighting conditions</li>
+              <li>Faces should be visible and not too small</li>
+              <li>Maximum file size: 100MB</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-lg">Upload & Analyze</button>
+          <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mt-4">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View All Students - Faculty Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .student-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .student-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 20px;
+    }
+    .student-body {
+      padding: 20px;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .photo-item {
+      text-align: center;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #28a745;
+    }
+    .photo-label {
+      margin-top: 5px;
+      font-size: 0.8rem;
+      color: #28a745;
+      font-weight: bold;
+    }
+    .no-photos {
+      text-align: center;
+      color: #6c757d;
+      font-style: italic;
+      padding: 20px;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+    }
+  </style>
+</head>
+<body>
+  <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-primary back-btn">
+    ← Back to Dashboard
+  </a>
+
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="text-success">Student Directory</h2>
+      <p class="text-muted">View all registered students and their photos</p>
+    </div>
+
+    {% if students %}
+      <div class="row">
+        {% for student in students %}
+        <div class="col-md-6 col-lg-4">
+          <div class="student-card">
+            <div class="student-header">
+              <h5 class="mb-1">{{ student.name }}</h5>
+              <p class="mb-0">Reg: {{ student.reg_no }}</p>
+              {% if student.dept %}
+                <small>{{ student.dept }}</small>
+              {% endif %}
+            </div>
+            
+            <div class="student-body">
+              <div class="row mb-3">
+                <div class="col-6">
+                  <small class="text-muted">Room:</small><br>
+                  <strong>{{ student.room_no or 'Not specified' }}</strong>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">Father:</small><br>
+                  <strong>{{ student.father_name or 'Not specified' }}</strong>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <small class="text-muted">Phone:</small><br>
+                <strong>{{ student.father_phone or 'Not specified' }}</strong>
+              </div>
+              
+              <h6 class="text-success mb-2">Photos Available</h6>
+              {% if student.photos %}
+                <div class="photo-grid">
+                  {% if student.photos.front %}
+                  <div class="photo-item">
+                    <img src="{{ student.photos.front }}" alt="Front View">
+                    <div class="photo-label">Front</div>
+                  </div>
+                  {% endif %}
+                  
+                  {% if student.photos.left %}
+                  <div class="photo-item">
+                    <img src="{{ student.photos.left }}" alt="Left Side">
+                    <div class="photo-label">Left</div>
+                  </div>
+                  {% endif %}
+                  
+                  {% if student.photos.right %}
+                  <div class="photo-item">
+                    <img src="{{ student.photos.right }}" alt="Right Side">
+                    <div class="photo-label">Right</div>
+                  </div>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="no-photos">
+                  <p>No photos uploaded yet</p>
+                  <small>Student needs to upload photos from their dashboard</small>
+                </div>
+              {% endif %}
+              
+              <div class="text-center mt-3">
+                <a href="{{ url_for('student_profile', regno=student.reg_no) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center">
+        <div class="card p-5">
+          <h4 class="text-muted">No Students Found</h4>
+          <p>No students have been registered in the system yet.</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

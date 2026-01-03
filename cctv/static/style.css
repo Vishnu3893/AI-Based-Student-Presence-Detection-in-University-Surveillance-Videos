@@ -1,0 +1,45 @@
+body { font-family: Inter, Arial, sans-serif; background:#f3f6fb; color:#111; }
+.bg-gradient { background: linear-gradient(135deg,#eef2ff 0%,#fef3c7 100%); }
+.card { border-radius:12px; }
+.viewer { position: relative; max-width:1000px; margin:0 auto; }
+video { width: 100%; height: auto; background: #000; display:block; position: relative; z-index:1; }
+#overlay { position:absolute; left:0; top:0; pointer-events:auto; z-index:2; }
+.tooltip { 
+  position:absolute; 
+  display:none; 
+  background:rgba(0,0,0,0.95); 
+  color:#fff; 
+  padding:15px 18px; 
+  border-radius:12px; 
+  z-index:1000; 
+  min-width:280px; 
+  max-width:350px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.6);
+  border: 3px solid #28a745;
+  font-size: 14px;
+  line-height: 1.5;
+  backdrop-filter: blur(10px);
+}
+
+.tooltip b { color: #28a745; }
+
+.tooltip a {
+  color: #007bff !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
+  transition: color 0.2s ease;
+}
+
+.tooltip a:hover {
+  color: #0056b3 !important;
+  text-decoration: none !important;
+}
+
+.tooltip .click-hint {
+  color: #6c757d;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.tooltip br { margin: 2px 0; }

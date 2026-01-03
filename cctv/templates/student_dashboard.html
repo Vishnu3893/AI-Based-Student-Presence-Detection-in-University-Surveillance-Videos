@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .dashboard-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    .dashboard-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 20px 20px 0 0;
+    }
+    .dashboard-body {
+      padding: 30px;
+    }
+    .info-card {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #28a745;
+    }
+    .info-label {
+      font-weight: bold;
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+    .info-value {
+      font-size: 1.1rem;
+      color: #212529;
+      margin-bottom: 15px;
+    }
+    .edit-form {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 20px;
+    }
+    .btn-edit {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    .btn-edit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    .photo-upload-section {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 20px;
+      border: 2px dashed #28a745;
+    }
+    .photo-preview {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #dee2e6;
+      margin: 10px 0;
+    }
+    .current-photos {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .photo-item {
+      text-align: center;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #28a745;
+    }
+    .photo-label {
+      margin-top: 8px;
+      font-weight: bold;
+      color: #28a745;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="dashboard-card">
+      <div class="dashboard-header">
+        <h2 class="mb-2">Welcome, {{ student_details.get('full_name', 'Student') }}!</h2>
+        <p class="mb-0">Registration: {{ student_details.get('reg_no', '') }}</p>
+      </div>
+
+      <div class="dashboard-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="info-card">
+              <div class="info-label">Full Name</div>
+              <div class="info-value">{{ student_details.get('full_name', 'Not specified') }}</div>
+              
+              <div class="info-label">Registration Number</div>
+              <div class="info-value">{{ student_details.get('reg_no', 'Not specified') }}</div>
+              
+              <div class="info-label">Department</div>
+              <div class="info-value">{{ student_details.get('department', 'Not specified') }}</div>
+              
+              <div class="info-label">Room Number</div>
+              <div class="info-value">{{ student_details.get('room_number', 'Not specified') }}</div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="info-card">
+              <div class="info-label">Father's Name</div>
+              <div class="info-value">{{ student_details.get('fathers_name', 'Not specified') }}</div>
+              
+              <div class="info-label">Father's Phone</div>
+              <div class="info-value">
+                {% if student_details.get('fathers_phone') %}
+                  <a href="tel:{{ student_details.get('fathers_phone') }}" class="text-decoration-none">{{ student_details.get('fathers_phone') }}</a>
+                {% else %}
+                  Not specified
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Edit Information Button -->
+        <div class="text-center mt-4">
+          <a href="{{ url_for('student_upload_details') }}" class="btn btn-edit">
+            <i class="bi bi-pencil-square me-2"></i>Edit Information
+          </a>
+        </div>
+
+        <!-- Current Photos Display -->
+        <div class="current-photos">
+          <h5 class="text-center mb-3">Your Current Photos</h5>
+          <div class="photo-grid">
+            {% if student_photos.front %}
+            <div class="photo-item">
+              <img src="{{ student_photos.front }}" alt="Front View">
+              <div class="photo-label">Front View</div>
+            </div>
+            {% endif %}
+            
+            {% if student_photos.left %}
+            <div class="photo-item">
+              <img src="{{ student_photos.left }}" alt="Left Side">
+              <div class="photo-label">Left Side</div>
+            </div>
+            {% endif %}
+            
+            {% if student_photos.right %}
+            <div class="photo-item">
+              <img src="{{ student_photos.right }}" alt="Right Side">
+              <div class="photo-label">Right Side</div>
+            </div>
+            {% endif %}
+            
+            {% if not student_photos.front and not student_photos.left and not student_photos.right %}
+            <div class="col-12 text-center text-muted">
+              <p>No photos uploaded yet. Please upload your photos below.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Photo Upload Section -->
+        <div class="photo-upload-section">
+          <h5 class="text-center mb-4">Upload Your Photos (3 Sides)</h5>
+          <form method="POST" action="{{ url_for('upload_student_photos') }}" enctype="multipart/form-data">
+            <div class="row">
+              <div class="col-md-4">
+                <label class="form-label">Front Photo *</label>
+                <input class="form-control" type="file" name="front_photo" accept="image/*" onchange="previewImage(this, 'frontPreview')" required>
+                <img id="frontPreview" class="photo-preview" style="display: none;" alt="Front Preview">
+                <small class="text-muted">Clear front-facing photo (required)</small>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Left Side Photo</label>
+                <input class="form-control" type="file" name="left_photo" accept="image/*" onchange="previewImage(this, 'leftPreview')">
+                <img id="leftPreview" class="photo-preview" style="display: none;" alt="Left Preview">
+                <small class="text-muted">Left profile view (optional)</small>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Right Side Photo</label>
+                <input class="form-control" type="file" name="right_photo" accept="image/*" onchange="previewImage(this, 'rightPreview')">
+                <img id="rightPreview" class="photo-preview" style="display: none;" alt="Right Preview">
+                <small class="text-muted">Right profile view (optional)</small>
+              </div>
+            </div>
+            
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-success me-2">Upload Photos</button>
+              <button type="button" class="btn btn-secondary" onclick="resetPhotoForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-edit me-2" onclick="toggleEditForm()">Edit Information</button>
+          <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary me-2">Change Password</a>
+          <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+        </div>
+
+        <div class="edit-form" id="editForm" style="display: none;">
+          <h5 class="text-center mb-4">Update Your Information</h5>
+          <form method="POST" action="{{ url_for('update_student_details') }}">
+            <input type="hidden" name="reg_no" value="{{ student_details.get('reg_no', '') }}">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" name="full_name" id="full_name_dashboard" value="{{ student_details.get('full_name', '') }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Department</label>
+                  <input type="text" name="department" id="department_dashboard" value="{{ student_details.get('department', '') }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Room Number</label>
+                  <input type="text" name="room_number" id="room_number_dashboard" value="{{ student_details.get('room_number', '') }}" class="form-control">
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Father's Name</label>
+                  <input type="text" name="fathers_name" id="fathers_name_dashboard" value="{{ student_details.get('fathers_name', '') }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Father's Phone</label>
+                  <input type="tel" name="fathers_phone" id="fathers_phone_dashboard" value="{{ student_details.get('fathers_phone', '') }}" class="form-control">
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-center">
+              <button type="submit" class="btn btn-success me-2">Save Changes</button>
+              <button type="button" class="btn btn-secondary" onclick="toggleEditForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mt-4">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleEditForm() {
+      const form = document.getElementById('editForm');
+      if (form.style.display === 'none') {
+        form.style.display = 'block';
+      } else {
+        form.style.display = 'none';
+      }
+    }
+    
+    function previewImage(input, previewId) {
+      const preview = document.getElementById(previewId);
+      const file = input.files[0];
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+    
+    function resetPhotoForm() {
+      // Reset file inputs
+      document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.value = '';
+      });
+      
+      // Hide previews
+      document.querySelectorAll('.photo-preview').forEach(preview => {
+        preview.style.display = 'none';
+      });
+    }
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

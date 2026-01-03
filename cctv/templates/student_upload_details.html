@@ -1,0 +1,112 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Update Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container my-4">
+    <h3 class="mb-4">Welcome, Student!</h3>
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0">Student Registration</h4>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <label class="form-label">Registration Number</label>
+          <div class="input-group">
+            <input type="text" id="reg_no" name="reg_no" class="form-control" value="{{ reg_no }}" placeholder="Enter Registration Number (e.g., 99220041142)" pattern="^99\d{9}$" title="Registration number must be 11 digits starting with 99" required>
+            <button type="button" class="btn btn-primary" onclick="fetchStudentDetails()">Load Details</button>
+          </div>
+        </div>
+
+        <form id="studentForm" method="POST" action="{{ url_for('update_student_details') }}" style="display: none;">
+          <input type="hidden" name="reg_no" id="form_reg_no">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                <input type="text" id="full_name" name="full_name" class="form-control" value="{{ student_details.full_name if student_details else '' }}" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Department <span class="text-danger">*</span></label>
+                <select id="department" name="department" class="form-control" required>
+                  <option value="">Select Department</option>
+                  <option value="CSE" {% if student_details and student_details.department == 'CSE' %}selected{% endif %}>CSE</option>
+                  <option value="ECE" {% if student_details and student_details.department == 'ECE' %}selected{% endif %}>ECE</option>
+                  <option value="ME" {% if student_details and student_details.department == 'ME' %}selected{% endif %}>ME</option>
+                  <option value="EEE" {% if student_details and student_details.department == 'EEE' %}selected{% endif %}>EEE</option>
+                  <option value="CIVIL" {% if student_details and student_details.department == 'CIVIL' %}selected{% endif %}>CIVIL</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Room Number</label>
+                <input type="text" id="room_number" name="room_number" class="form-control" value="{{ student_details.room_number if student_details else '' }}" placeholder="e.g., A-101">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Father's Name</label>
+                <input type="text" id="fathers_name" name="fathers_name" class="form-control" value="{{ student_details.fathers_name if student_details else '' }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Father's Phone</label>
+                <input type="tel" id="fathers_phone" name="fathers_phone" class="form-control" value="{{ student_details.fathers_phone if student_details else '' }}" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-3">
+            <button type="submit" class="btn btn-success">Save Changes</button>
+            <a class="btn btn-secondary" href="{{ url_for('student_dashboard') }}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function fetchStudentDetails() {
+      const regNo = document.getElementById('reg_no').value;
+      if (!regNo.match(/^99\d{9}$/)) {
+        alert('Please enter a valid registration number (11 digits starting with 99)');
+        return;
+      }
+
+      fetch('/get_student_details/' + regNo)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert(data.error);
+            return;
+          }
+          
+          // Update form fields with student details
+          document.getElementById('form_reg_no').value = regNo;
+          document.getElementById('full_name').value = data.full_name || '';
+          document.getElementById('department').value = data.department || '';
+          document.getElementById('room_number').value = data.room_number || '';
+          document.getElementById('fathers_name').value = data.fathers_name || '';
+          document.getElementById('fathers_phone').value = data.fathers_phone || '';
+          
+          // Show the form
+          document.getElementById('studentForm').style.display = 'block';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error fetching student details. Please try again.');
+        });
+    }
+
+    // Auto-load if reg_no is already filled
+    window.onload = function() {
+      const regNo = document.getElementById('reg_no').value;
+      if (regNo && regNo.match(/^99\d{9}$/)) {
+        fetchStudentDetails();
+      }
+    };
+  </script>
+</body>
+</html>

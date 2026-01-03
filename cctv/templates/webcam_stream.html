@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Live Webcam</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary">
+  <div class="container">
+    <span class="navbar-brand">Live Webcam</span>
+    <div class="d-flex gap-2">
+      <a class="btn btn-light btn-sm" href="{{ url_for('change_password') }}">Change Password</a>
+      <a class="btn btn-light btn-sm" href="{{ url_for('faculty_dashboard') }}">Back</a>
+    </div>
+  </div>
+  </nav>
+
+<div class="container my-4">
+  <div class="card p-2">
+    <div style="position: relative; display: inline-block;">
+      <img id="webcam" src="{{ url_for('webcam_feed') }}" class="img-fluid" alt="Webcam stream">
+      <canvas id="overlay" style="position:absolute; left:0; top:0;"></canvas>
+    </div>
+  </div>
+  <div class="alert alert-info mt-3">
+    Make sure to allow camera access if prompted. Boxes and labels will render on the server.
+  </div>
+</div>
+
+<script>
+  const img = document.getElementById('webcam');
+  const canvas = document.getElementById('overlay');
+  const ctx = canvas.getContext('2d');
+  let boxes = [];
+
+  function resizeCanvas() {
+    canvas.width = img.clientWidth;
+    canvas.height = img.clientHeight;
+  }
+
+  function drawBoxes() {
+    if (!canvas.width || !canvas.height) return;
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.strokeStyle = '#00FF00';
+    ctx.lineWidth = 2;
+    ctx.font = '14px Arial';
+    ctx.fillStyle = 'rgba(0,255,0,0.2)';
+    for (const b of boxes) {
+      const x = b.x * canvas.width;
+      const y = b.y * canvas.height;
+      const w = b.w * canvas.width;
+      const h = b.h * canvas.height;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillRect(x, y, w, h);
+      const label = b.reg_no || 'UNKNOWN';
+      ctx.fillStyle = '#00FF00';
+      ctx.fillText(label, x + 4, y + 16);
+      ctx.fillStyle = 'rgba(0,255,0,0.2)';
+    }
+  }
+
+  function hitTest(x, y) {
+    const px = x / canvas.width;
+    const py = y / canvas.height;
+    for (const b of boxes) {
+      if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) {
+        return b;
+      }
+    }
+    return null;
+  }
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const b = hitTest(x, y);
+    if (b && b.reg_no && b.reg_no !== 'UNKNOWN') {
+      window.location.href = `/student/${b.reg_no}`;
+    }
+  });
+
+  function poll() {
+    fetch(`/live_tracks?source=webcam`)
+      .then(r => r.json())
+      .then(data => { boxes = data || []; drawBoxes(); })
+      .catch(() => {});
+  }
+
+  img.addEventListener('load', () => { resizeCanvas(); drawBoxes(); });
+  window.addEventListener('resize', () => { resizeCanvas(); drawBoxes(); });
+  setInterval(poll, 300);
+</script>
+
+</body>
+</html>
+
+

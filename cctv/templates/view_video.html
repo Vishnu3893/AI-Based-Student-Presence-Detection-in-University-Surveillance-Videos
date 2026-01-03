@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Analysis - {{ video_file }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .analysis-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin: 20px auto;
+      max-width: 1400px;
+    }
+    .video-section {
+      background: #f8f9fa;
+      padding: 30px;
+      text-align: center;
+    }
+    .video-container {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+    }
+    video {
+      width: 100%;
+      max-width: 800px;
+      border: 3px solid #28a745;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .face-box {
+      position: absolute;
+      border: 3px solid #ffc107;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 5px;
+    }
+    .face-box:hover {
+      border-color: #dc3545;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(220, 53, 69, 0.6);
+    }
+    .face-box.identified {
+      border-color: #28a745;
+      box-shadow: 0 0 20px rgba(40, 167, 69, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+    .face-box.unknown {
+      border-color: #6c757d;
+      box-shadow: 0 0 10px rgba(108, 117, 125, 0.5);
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 20px rgba(40, 167, 69, 0.7); }
+      50% { box-shadow: 0 0 30px rgba(40, 167, 69, 0.9); }
+      100% { box-shadow: 0 0 20px rgba(40, 167, 69, 0.7); }
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.95);
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: 12px;
+      display: none;
+      font-size: 14px;
+      z-index: 1000;
+      max-width: 350px;
+      min-width: 280px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 2px solid #28a745;
+      pointer-events: auto;
+      line-height: 1.5;
+    }
+    .tooltip a {
+      color: #28a745;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .tooltip a:hover {
+      color: #20c997;
+      text-decoration: underline;
+    }
+    .tooltip strong {
+      color: #28a745;
+    }
+    .results-section {
+      padding: 30px;
+    }
+    .student-card {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 5px solid #28a745;
+      transition: all 0.3s ease;
+    }
+    .student-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .student-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #28a745;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .student-name:hover {
+      color: #1e7e34;
+      text-decoration: underline;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+    }
+    .stats-row {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .detection-info {
+      background: #e3f2fd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      border-left: 4px solid #2196f3;
+    }
+    .frame-info {
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-light back-btn">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+  </a>
+
+  <div class="analysis-container">
+    <!-- Header with Statistics -->
+    <div class="stats-row">
+      <div class="row">
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">{{ faces|length }}</div>
+          <div class="stat-label">Total Detections</div>
+        </div>
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">{{ faces|selectattr('name', 'ne', 'Unknown')|list|length }}</div>
+          <div class="stat-label">Identified Students</div>
+        </div>
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">{{ faces|selectattr('name', 'equalto', 'Unknown')|list|length }}</div>
+          <div class="stat-label">Unknown Faces</div>
+        </div>
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">{{ video_file }}</div>
+          <div class="stat-label">Video File</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Section -->
+    <div class="video-section">
+      <h3 class="mb-4"><i class="fas fa-video"></i> Video Analysis</h3>
+      <div class="video-container" id="videoContainer">
+        <video id="videoPlayer" controls muted playsinline preload="metadata">
+          <source src="{{ url_for('uploaded_file', filename=video_file) }}" type="video/mp4">
+          <source src="{{ url_for('uploaded_file', filename=video_file) }}" type="video/webm">
+          <source src="{{ url_for('uploaded_file', filename=video_file) }}" type="video/ogg">
+          Your browser does not support HTML5 video. 
+          <a href="{{ url_for('uploaded_file', filename=video_file) }}" download>Download the video</a>
+        </video>
+        
+        <!-- Debug information -->
+        <div class="mt-3 p-3 bg-light rounded">
+          <h6>Debug Information:</h6>
+          <p><strong>Video File:</strong> {{ video_file }}</p>
+          <p><strong>Video URL:</strong> {{ url_for('uploaded_file', filename=video_file) }}</p>
+          <p><strong>Direct Link:</strong> <a href="{{ url_for('uploaded_file', filename=video_file) }}" target="_blank">Open Video in New Tab</a></p>
+        </div>
+        {% for face in faces %}
+    <div class="face-box {% if face.name != 'Unknown' %}identified{% else %}unknown{% endif %}"
+      data-style="{{ face.style }}"
+               data-info="{% if face.name != 'Unknown' %}<strong><a href='{{ url_for('student_profile', regno=face.reg) }}'>{{ face.name }}</a></strong><br>Reg: {{ face.reg }}<br>Dept: {{ face.dept }}<br>Frame: {{ face.frame }}{% else %}Unknown Person<br>Frame: {{ face.frame }}{% endif %}"
+               data-reg="{{ face.reg if face.reg != '-' else '' }}">
+          </div>
+        {% endfor %}
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+      <h4 class="mb-4"><i class="fas fa-users"></i> Detected Students</h4>
+      
+      {% if faces %}
+        <!-- Group faces by student -->
+        {% set unique_students = {} %}
+        {% for face in faces %}
+          {% if face.name != 'Unknown' and face.reg not in unique_students %}
+            {% set _ = unique_students.update({face.reg: face}) %}
+          {% endif %}
+        {% endfor %}
+
+        {% if unique_students %}
+          {% for reg, face in unique_students.items() %}
+            <div class="student-card">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <h5>
+                    <a href="{{ url_for('student_profile', regno=reg) }}" class="student-name">
+                      <i class="fas fa-user"></i> {{ face.name }}
+                    </a>
+                  </h5>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Registration:</strong> {{ face.reg }}</p>
+                      <p class="mb-1"><strong>Department:</strong> {{ face.dept }}</p>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Father's Name:</strong> {{ face.father_name or 'N/A' }}</p>
+                      <p class="mb-1"><strong>Father's Phone:</strong> {{ face.father_phno or 'N/A' }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 text-end">
+                  <a href="{{ url_for('student_profile', regno=reg) }}" class="btn btn-primary">
+                    <i class="fas fa-eye"></i> View Full Profile
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Show detection details -->
+        <div class="detection-info">
+          <h6><i class="fas fa-info-circle"></i> Detection Details</h6>
+          <div class="row">
+            {% for face in faces %}
+              <div class="col-md-6 mb-2">
+                <div class="frame-info">
+                  <strong>Frame {{ face.frame }}:</strong> 
+                  {% if face.name != 'Unknown' %}
+                    <a href="{{ url_for('student_profile', regno=face.reg) }}" class="text-decoration-none">{{ face.name }}</a> ({{ face.reg }})
+                  {% else %}
+                    Unknown person
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if faces|selectattr('name', 'equalto', 'Unknown')|list|length > 0 %}
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>{{ faces|selectattr('name', 'equalto', 'Unknown')|list|length }} unknown face(s)</strong> detected. 
+            These may be unregistered students or visitors.
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          No faces detected in this video. Please ensure the video has clear, visible faces.
+        </div>
+      {% endif %}
+
+      <div class="text-center mt-4">
+        <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-primary me-2">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <a href="{{ url_for('upload_video') }}" class="btn btn-outline-success">
+          <i class="fas fa-upload"></i> Upload Another Video
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Video loading error handling
+    const video = document.getElementById("videoPlayer");
+    if (video) {
+      video.addEventListener("error", function(e) {
+        console.error("Video loading error:", e);
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "alert alert-danger mt-3";
+        errorDiv.innerHTML = `
+          <h5><i class="fas fa-exclamation-triangle"></i> Video Loading Error</h5>
+          <p>The video could not be loaded. This might be due to:</p>
+          <ul>
+            <li>Unsupported video format</li>
+            <li>File corruption</li>
+            <li>Browser compatibility issues</li>
+          </ul>
+          <p><a href="${video.querySelector('source').src}" class="btn btn-primary" download>
+            <i class="fas fa-download"></i> Download Video Instead
+          </a></p>
+        `;
+        video.parentNode.appendChild(errorDiv);
+      });
+      
+      video.addEventListener("loadeddata", function() {
+        console.log("Video loaded successfully");
+      });
+    }
+
+    // Tooltip functionality
+    const tooltip = document.getElementById("tooltip");
+    document.querySelectorAll(".face-box").forEach(box => {
+      // apply precomputed style (set by server) to avoid inline Jinja in style attribute
+      if (box.dataset.style) {
+        box.style.cssText = box.dataset.style;
+      }
+      box.addEventListener("mousemove", (e) => {
+        tooltip.style.left = (e.pageX + 10) + "px";
+        tooltip.style.top = (e.pageY + 10) + "px";
+        tooltip.innerHTML = box.dataset.info;
+        tooltip.style.display = "block";
+      });
+      box.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none";
+      });
+      
+      // Make face boxes clickable for identified students
+      const reg = box.dataset.reg;
+      if (reg) {
+        box.addEventListener("click", () => {
+          window.location.href = `/student/${reg}`;
+        });
+        box.style.cursor = "pointer";
+      }
+    });
+  </script>
+</body>
+</html>

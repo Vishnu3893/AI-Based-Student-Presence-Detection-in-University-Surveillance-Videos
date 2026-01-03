@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Profile - {{ student.regno }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .profile-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    .profile-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 5px solid white;
+      object-fit: cover;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    .profile-name {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .profile-regno {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+    .profile-body {
+      padding: 40px;
+    }
+    .info-section {
+      margin-bottom: 30px;
+    }
+    .info-label {
+      font-weight: bold;
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+    .info-value {
+      font-size: 1.1rem;
+      color: #212529;
+      margin-bottom: 15px;
+    }
+    .photos-section {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 30px;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .photo-item {
+      text-align: center;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 3px solid #28a745;
+      transition: transform 0.3s ease;
+    }
+    .photo-item img:hover {
+      transform: scale(1.05);
+    }
+    .photo-label {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #28a745;
+      text-transform: capitalize;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+    }
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      border-left: 4px solid #28a745;
+    }
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-light back-btn">
+    ← Back to Dashboard
+  </a>
+
+  <div class="profile-card">
+    <div class="profile-header">
+      {% if photos.front %}
+        <img src="{{ photos.front }}" alt="Front Photo" class="profile-avatar">
+      {% else %}
+        <div class="profile-avatar bg-light d-flex align-items-center justify-content-center">
+          <i class="fas fa-user fa-3x text-muted"></i>
+        </div>
+      {% endif %}
+      <div class="profile-name">{{ student.name }}</div>
+      <div class="profile-regno">Registration: {{ student.regno }}</div>
+    </div>
+
+    <div class="profile-body">
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-number">{{ photos|length }}</div>
+          <div class="text-muted">Photos Available</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ student.dept or 'N/A' }}</div>
+          <div class="text-muted">Department</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ student.father_name or 'N/A' }}</div>
+          <div class="text-muted">Father's Name</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="info-section">
+            <div class="info-label">Registration Number</div>
+            <div class="info-value">{{ student.regno }}</div>
+            
+            <div class="info-label">Full Name</div>
+            <div class="info-value">{{ student.name }}</div>
+            
+            <div class="info-label">Department</div>
+            <div class="info-value">{{ student.dept or 'Not specified' }}</div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="info-section">
+            <div class="info-label">Father's Name</div>
+            <div class="info-value">{{ student.father_name or 'Not specified' }}</div>
+            
+            <div class="info-label">Father's Phone</div>
+            <div class="info-value">
+              {% if student.father_phno %}
+                <a href="tel:{{ student.father_phno }}" class="text-decoration-none">{{ student.father_phno }}</a>
+              {% else %}
+                Not specified
+              {% endif %}
+            </div>
+            
+            <div class="info-label">Portal Link</div>
+            <div class="info-value">
+              {% if student.portal and student.portal != '#' %}
+                <a href="{{ student.portal }}" target="_blank" class="btn btn-sm btn-outline-primary">Visit Portal</a>
+              {% else %}
+                <span class="text-muted">No portal link available</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if photos %}
+      <div class="photos-section">
+        <h4 class="text-center mb-4">Student Photos</h4>
+        <div class="photo-grid">
+          {% if photos.front %}
+          <div class="photo-item">
+            <img src="{{ photos.front }}" alt="Front View">
+            <div class="photo-label">Front View</div>
+          </div>
+          {% endif %}
+          
+          {% if photos.left %}
+          <div class="photo-item">
+            <img src="{{ photos.left }}" alt="Left Side">
+            <div class="photo-label">Left Side</div>
+          </div>
+          {% endif %}
+          
+          {% if photos.right %}
+          <div class="photo-item">
+            <img src="{{ photos.right }}" alt="Right Side">
+            <div class="photo-label">Right Side</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="text-center mt-4">
+        <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-primary me-2">Back to Dashboard</a>
+        <a href="{{ url_for('view_video', filename='recent') }}" class="btn btn-outline-success">View Recent Analysis</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
